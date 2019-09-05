@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.SysRoleDao">
+	<sql id="queryWhereId">
+		<where>
+			<if test="name!=null and nanem!=''">
+				name like concat("%",#{name},"%")
+			</if>
+		</where>
+	</sql>
+	<select id="findPageObjects"
+		resultType="com.cy.pj.sys.entity.SysRole">
+		select * from sys_roles
+		<include refid="queryWhereId" />
+		order by createdTime desc
+		limit #{startIndex},#{pageSize}
+	</select>
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_roles
+		<include refid="queryWhereId" />
+	</select>
+	<!-- 向表中导入数据 1) useGeneratedKeys 表示获取写入到数据库的主键值 2) keyProperty 表示将获取的主键值赋值个参数的哪个值 -->
+	<insert id="insertObject"
+		parameterType="com.cy.pj.sys.entity.SysRole" useGeneratedKeys="true"
+		keyProperty="id">
+
+		insert into sys_roles
+		(id,name,note,createdTime,modifiedTime,
+		createdUser,modifiedUser)
+		values
+		(null,#{name},#{note},now(),now(),
+		#{createdUser},#{modifiedUser})
+
+	</insert>
+
+	<!-- 自定义结果映射 -->
+	<resultMap type="com.cy.pj.sys.vo.SysRoleMenuVo"
+		id="sysRoleMenuVo">
+		<!-- 尝试自己实现：思考讨论 -->
+		<!-- 自己补充实现 -->
+		<collection property="menuIds" column="id"
+			select="com.cy.pj.sys.dao.SysRoleMenuDao.findMenuIdsByRoleId">
+		</collection>
+	</resultMap>
+
+	<!-- 基于角色id查询角色信息 (自己定义映射规则或者关联查询时使用resultMap定义) -->
+	<select id="findObjectById" resultMap="sysRoleMenuVo">
+		select id,name,note
+		from
+		sys_roles
+		where id=#{id}
+	</select>
+	<update id="updateObject"
+		parameterType="com.cy.pj.sys.entity.SysRole">
+		update sys_roles
+		<set>
+			<if test="name!=null and name!=''">
+				name=#{name},
+			</if>
+			<if test="note!=null and note!=''">
+				note=#{note},
+			</if>
+			<if test="modifiedUser!=null and modifiedUser!=''">
+				modifiedUser=#{modifiedUser},
+			</if>
+			modifiedTime=now()
+		</set>
+		where id=#{id}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+

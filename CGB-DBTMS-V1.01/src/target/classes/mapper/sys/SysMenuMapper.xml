@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.SysMenuDao">
+	<!--1.查询本菜单以及上一级菜单相关信息  使用内连接查询-->
+	<select id="findObjects" resultType="map">
+		select c.*,(select p.name from sys_menus p where c.parentId=p.id) parentName
+		from sys_menus c
+	</select>
+	<!--2.根据菜单id统计子菜单的个数 -->
+	<select id="getChildCount" resultType="int">
+		select count(*) from sys_menus
+		where parentId=#{id}
+	</select>
+	<!--3.根据id删除菜单 -->
+	<delete id="deleteObject" parameterType="int">
+		delete from sys_menus where id=#{id}
+	</delete>
+	<!--4.获取数据库对应的菜单表中的所有菜单信息 -->
+	<select id="findZtreeMenuNodes" resultType="com.cy.pj.common.vo.Node">
+		select id,name,parentId from sys_menus
+	</select>
+	<update id="saveObject" parameterType="com.cy.pj.sys.entity.SysMenu">
+	 insert into sys_menus
+          (name,url,type,sort,note,parentId,permission,createdTime,modifiedTime,createdUser,modifiedUser)
+          values
+          (#{name},#{url},#{type},#{sort},#{note},#{parentId},#{permission},now(),now(),#{createdUser},#{modifiedUser})
+	</update>
+	<!--5.将菜单信息更新到数据库  -->
+	<update id="updateObject" parameterType="com.cy.pj.sys.entity.SysMenu">
+	 update sys_menus
+         set
+           name=#{name},
+           type=#{type},
+           sort=#{sort},
+           url=#{url},
+           parentId=#{parentId},
+           permission=#{permission},
+           modifiedUser=#{modifiedUser},
+           modifiedTime=now()
+        where id=#{id}
+	
+	</update>
+
+
+</mapper>

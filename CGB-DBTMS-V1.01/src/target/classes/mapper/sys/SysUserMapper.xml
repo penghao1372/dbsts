@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.pj.sys.dao.SysUserDao">
+	<resultMap type="com.cy.pj.sys.vo.SysUserDeptVo"
+		id="sysUserMap">
+		<!-- 关联查询 -->
+		<association property="sysDept" column="deptId"
+			select="com.cy.pj.sys.dao.SysDeptDao.findById">
+		</association>
+	</resultMap>
+
+	<sql id="queryWhereId">
+		<where>
+			<if test="username!=null and username!=''">
+				username like concat("%",#{username},"%")
+			</if>
+		</where>
+	</sql>
+	<select id="getRowCount" resultType="int">
+		select count(*) from sys_users
+		<include refid="queryWhereId" />
+	</select>
+	<select id="findPageObjects" resultMap="sysUserMap">
+		select*from sys_users
+		<include refid="queryWhereId" />
+		limit #{startIndex},#{pageSize};
+	</select>
+
+	<update id="validById">
+		update sys_users
+		set valid=#{valid},
+		modifiedUser=#{modifiedUser},
+		modifiedTime=now()
+		where id=#{id}
+	</update>
+
+	<insert id="insertObject"
+		parameterType="com.cy.pj.sys.entity.SysUser" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into sys_users
+		(username,password,deptId,email,mobile,salt,valid,
+		createdTime,modifiedTime,createdUser,modifiedUser)
+		values
+		(#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+		now(),now(),#{createdUser},#{modifiedUser})
+	</insert>
+
+	<!--根据id查找角色id -->
+	<select id="findObjectById" parameterType="int"
+		resultMap="sysUserMap">
+		select*from sys_users
+		where id=#{id}
+	</select>
+	<!--更新数据信息 -->
+	<update id="updateObject"
+		parameterType="com.cy.pj.sys.entity.SysUser">
+		update sys_users
+		<set>
+			<if test="username!=null and username!=''">
+				username=#{username},
+			</if>
+			<if test="email!=null and email!=''">
+				email=#{email},
+			</if>
+			<if test="mobile!=null and mobile!=''">
+				mobile=#{mobile},
+			</if>
+			<if test="deptId!=null and deptId!=''">
+				deptId=#{deptId},
+			</if>
+
+			<if test="modifiedUser!=null and modifiedUser!=''">
+				modifiedUser=#{modifiedUser},
+			</if>
+			modifiedTime=now()
+		</set>
+		where id=#{id}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
